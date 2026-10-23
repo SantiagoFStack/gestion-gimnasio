@@ -31,7 +31,15 @@ Planes que vende el gimnasio (Mensual, Trimestral, Anual...).
 
 ### membresia
 
-*Pendiente.*
+Cada vez que un socio contrata un plan. El estado (ACTIVA / VENCIDA) no se guarda: se calcula comparando `fecha_fin` con hoy.
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | INT | PK, AUTO_INCREMENT |
+| socio_id | INT | FK → socio.id |
+| plan_id | INT | FK → plan.id |
+| fecha_inicio | DATE | |
+| fecha_fin | DATE | fecha_inicio + duracion_dias del plan |
 
 ### pago
 
