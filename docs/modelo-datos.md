@@ -55,7 +55,14 @@ Cada cobro a un socio. Pertenece a una membresía.
 
 ### usuario
 
-*Pendiente.*
+Personal del gimnasio que entra al sistema (no son los socios).
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | INT | PK, AUTO_INCREMENT |
+| usuario | VARCHAR(30) | UNIQUE, no puede repetirse |
+| password | VARCHAR(100) | Se guarda cifrada, nunca en texto plano |
+| rol | VARCHAR(20) | ADMIN o RECEPCION |
 
 ## Relaciones
 
