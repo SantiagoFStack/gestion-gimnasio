@@ -1,6 +1,10 @@
 # Modelo de datos
 
-Issue #7. Base de datos MySQL del sistema de gestión del gimnasio.
+Issue #7. Base de datos MySQL del sistema de gestión del gimnasio. El script que la crea está en [`backend/bd/gimnasio.sql`](../backend/bd/gimnasio.sql).
+
+## Diagrama entidad-relación
+
+![Diagrama entidad-relación](diagrama-er.png)
 
 ## Tablas
 
