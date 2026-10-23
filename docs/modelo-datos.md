@@ -43,7 +43,15 @@ Cada vez que un socio contrata un plan. El estado (ACTIVA / VENCIDA) no se guard
 
 ### pago
 
-*Pendiente.*
+Cada cobro a un socio. Pertenece a una membresía.
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | INT | PK, AUTO_INCREMENT |
+| membresia_id | INT | FK → membresia.id |
+| fecha | DATE | |
+| monto | DECIMAL(10,2) | Mismo tipo que plan.precio |
+| metodo | VARCHAR(20) | EFECTIVO, TARJETA o TRANSFERENCIA |
 
 ### usuario
 
