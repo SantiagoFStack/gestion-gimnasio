@@ -66,4 +66,20 @@ Personal del gimnasio que entra al sistema (no son los socios).
 
 ## Relaciones
 
-*Pendiente.*
+La tabla que tiene la FK es el lado "muchos"; la tabla a la que apunta, el lado "uno".
+
+| Relación | Tipo | FK |
+|---|---|---|
+| Un socio tiene muchas membresías; una membresía es de un socio | 1 : N | membresia.socio_id → socio.id |
+| Un plan aparece en muchas membresías; una membresía es de un plan | 1 : N | membresia.plan_id → plan.id |
+| Una membresía tiene muchos pagos; un pago es de una membresía | 1 : N | pago.membresia_id → membresia.id |
+
+`usuario` no se relaciona con las demás tablas: solo sirve para entrar al sistema.
+
+```
+socio 1 ──── N membresia N ──── 1 plan
+                   1
+                   │
+                   N
+                 pago
+```
