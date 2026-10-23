@@ -20,7 +20,14 @@ Personas inscritas en el gimnasio.
 
 ### plan
 
-*En progreso.*
+Planes que vende el gimnasio (Mensual, Trimestral, Anual...).
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | INT | PK, AUTO_INCREMENT |
+| nombre | VARCHAR(50) | UNIQUE, dos planes no pueden llamarse igual |
+| duracion_dias | INT | Cantidad de días, por ejemplo 30 |
+| precio | DECIMAL(10,2) | |
 
 ### membresia
 
