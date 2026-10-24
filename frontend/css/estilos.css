@@ -1,0 +1,25 @@
+body { background: #f4f6f9; }
+
+.menu {
+  width: 220px;
+  min-height: 100vh;
+  background: #1f2937;
+  padding: 20px;
+}
+
+.menu h4 { color: white; margin-bottom: 24px; }
+
+.menu a {
+  display: block;
+  color: #cbd5e1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.menu a:hover, .menu a.activo {
+  background: #374151;
+  color: white;
+}
+
+.contenido { flex: 1; padding: 32px; }
