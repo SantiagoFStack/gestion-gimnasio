@@ -11,6 +11,7 @@ public class Socio {
     private String email;
     private String telefono;
     private LocalDate fechaRegistro;
+    private String estado;   // ACTIVA o VENCIDA: no es columna, se calcula con su última membresía
 
     public Socio() {
     }
@@ -45,9 +46,12 @@ public class Socio {
     public LocalDate getFechaRegistro() { return fechaRegistro; }
     public void setFechaRegistro(LocalDate fechaRegistro) { this.fechaRegistro = fechaRegistro; }
 
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+
     @Override
     public String toString() {
         return id + " | " + dni + " | " + nombre + " " + apellido
-                + " | " + email + " | " + telefono + " | " + fechaRegistro;
+                + " | " + email + " | " + telefono + " | " + fechaRegistro + " | " + estado;
     }
 }

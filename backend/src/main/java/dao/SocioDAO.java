@@ -1,6 +1,7 @@
 package dao;
 
 import conexion.Conexion;
+import modelo.Membresia;
 import modelo.Socio;
 import java.sql.*;
 import java.time.LocalDate;
@@ -10,9 +11,14 @@ import java.util.List;
 // CRUD de la tabla socio (issue #10)
 public class SocioDAO {
 
+    // Cada socio viene con la fecha de fin de su última membresía (vence), para calcular su estado
+    private static final String SELECT = "SELECT s.*, "
+            + "(SELECT MAX(m.fecha_fin) FROM membresia m WHERE m.socio_id = s.id) AS vence "
+            + "FROM socio s ";
+
     // ---------- Listar ----------
     public List<Socio> listar() throws SQLException {
-        String sql = "SELECT * FROM socio ORDER BY apellido, nombre";
+        String sql = SELECT + "ORDER BY s.apellido, s.nombre";
         List<Socio> lista = new ArrayList<>();
         try (Connection con = Conexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -26,7 +32,7 @@ public class SocioDAO {
 
     // ---------- Buscar por nombre, apellido o DNI ----------
     public List<Socio> buscar(String texto) throws SQLException {
-        String sql = "SELECT * FROM socio WHERE nombre LIKE ? OR apellido LIKE ? OR dni LIKE ? ORDER BY apellido, nombre";
+        String sql = SELECT + "WHERE s.nombre LIKE ? OR s.apellido LIKE ? OR s.dni LIKE ? ORDER BY s.apellido, s.nombre";
         String patron = "%" + texto + "%";
         List<Socio> lista = new ArrayList<>();
         try (Connection con = Conexion.conectar();
@@ -45,7 +51,7 @@ public class SocioDAO {
 
     // ---------- Buscar uno por id (null si no existe) ----------
     public Socio buscarPorId(int id) throws SQLException {
-        String sql = "SELECT * FROM socio WHERE id = ?";
+        String sql = SELECT + "WHERE s.id = ?";
         try (Connection con = Conexion.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -120,6 +126,8 @@ public class SocioDAO {
         s.setEmail(rs.getString("email"));
         s.setTelefono(rs.getString("telefono"));
         s.setFechaRegistro(rs.getDate("fecha_registro").toLocalDate());
+        Date vence = rs.getDate("vence");
+        s.setEstado(Membresia.calcularEstado(vence == null ? null : vence.toLocalDate()));
         return s;
     }
 }
