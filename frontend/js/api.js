@@ -1,125 +1,52 @@
 // =====================================================
 // api.js — todas las llamadas al back pasan por aquí.
-// Por ahora son datos falsos. En el #18 se cambian por fetch.
+// Versión real: habla con la API del backend (Java) publicada en Render.
 // =====================================================
 
-let socios = [
-  { id: 1, dni: "1012345678", nombre: "Ana", apellido: "Pérez",
-    email: "ana.perez@mail.com", telefono: "3001234567",
-    fechaRegistro: "2026-09-01", estado: "ACTIVA" },
-  { id: 2, dni: "1023456789", nombre: "Carlos", apellido: "Gómez",
-    email: "carlos.gomez@mail.com", telefono: "3109876543",
-    fechaRegistro: "2026-09-01", estado: "ACTIVA" },
-  { id: 3, dni: "1034567890", nombre: "Laura", apellido: "Martínez",
-    email: "laura.martinez@mail.com", telefono: "3155551234",
-    fechaRegistro: "2026-08-15", estado: "VENCIDA" }
-];
+// La API en internet. Para probar con la API encendida en tu PC (api.Servidor)
+// cambia esta línea por: const URL_API = "http://localhost:8080/api";
+const URL_API = "https://gimnasio-api-imsn.onrender.com/api";
 
-let planes = [
-  { id: 1, nombre: "Mensual", duracionDias: 30, precio: 80000 },
-  { id: 2, nombre: "Trimestral", duracionDias: 90, precio: 220000 },
-  { id: 3, nombre: "Anual", duracionDias: 365, precio: 800000 }
-];
-
-let pagos = [];
-
-function hoy() {
-  return new Date().toISOString().slice(0, 10);   // "2026-10-22"
-}
-
-// ---------- Login ----------
-async function login(usuario, password) {
-  if (usuario === "admin" && password === "admin123") {
-    return { id: 1, usuario: "admin", rol: "ADMIN" };
+// Hace la petición y devuelve el JSON, o lanza un error con el mensaje del back
+async function pedir(metodo, ruta, datos) {
+  let respuesta;
+  try {
+    respuesta = await fetch(URL_API + ruta, {
+      method: metodo,
+      headers: { "Content-Type": "application/json" },
+      body: datos ? JSON.stringify(datos) : undefined
+    });
+  } catch (e) {
+    throw new Error("No se pudo conectar con el servidor. Si lleva un rato sin usarse, espera un minuto y recarga.");
   }
-  throw new Error("Usuario o contraseña incorrectos");
+
+  if (!respuesta.ok) {
+    const error = await respuesta.json().catch(() => ({}));
+    throw new Error(error.error || "Error del servidor (" + respuesta.status + ")");
+  }
+
+  const texto = await respuesta.text();   // DELETE no devuelve nada
+  return texto ? JSON.parse(texto) : null;
 }
 
-// ---------- Dashboard ----------
-async function getDashboard() {
-  return {
-    sociosActivos: 2,
-    membresiasVencidas: 1,
-    vencenEstaSemana: 1,
-    ingresosMes: 160000
-  };
-}
+// ---------- Login y dashboard ----------
+async function login(usuario, password) { return pedir("POST", "/login", { usuario, password }); }
+async function getDashboard()          { return pedir("GET", "/dashboard"); }
 
 // ---------- Socios ----------
-async function getSocios(buscar = "") {
-  const texto = buscar.toLowerCase();
-  return socios.filter(s =>
-    s.nombre.toLowerCase().includes(texto) ||
-    s.apellido.toLowerCase().includes(texto) ||
-    s.dni.includes(texto)
-  );
-}
-
-async function getSocio(id) {
-  return socios.find(s => s.id === id);
-}
-
-async function crearSocio(datos) {
-  if (socios.some(s => s.dni === datos.dni)) {
-    throw new Error("Ya existe un socio con ese DNI");
-  }
-  const nuevo = { ...datos, id: Date.now(), fechaRegistro: hoy(), estado: "VENCIDA" };
-  socios.push(nuevo);
-  return nuevo;
-}
-
-async function editarSocio(id, datos) {
-  const socio = socios.find(s => s.id === id);
-  Object.assign(socio, datos);
-  return socio;
-}
-
-async function eliminarSocio(id) {
-  socios = socios.filter(s => s.id !== id);
-}
+async function getSocios(buscar = "")  { return pedir("GET", "/socios?buscar=" + encodeURIComponent(buscar)); }
+async function getSocio(id)            { return pedir("GET", "/socios/" + id); }
+async function crearSocio(datos)       { return pedir("POST", "/socios", datos); }
+async function editarSocio(id, datos)  { return pedir("PUT", "/socios/" + id, datos); }
+async function eliminarSocio(id)       { return pedir("DELETE", "/socios/" + id); }
 
 // ---------- Planes ----------
-async function getPlanes() {
-  return planes;
-}
+async function getPlanes()             { return pedir("GET", "/planes"); }
+async function crearPlan(datos)        { return pedir("POST", "/planes", datos); }
+async function editarPlan(id, datos)   { return pedir("PUT", "/planes/" + id, datos); }
+async function eliminarPlan(id)        { return pedir("DELETE", "/planes/" + id); }
 
-async function crearPlan(datos) {
-  const nuevo = { ...datos, id: Date.now() };
-  planes.push(nuevo);
-  return nuevo;
-}
-
-async function editarPlan(id, datos) {
-  const plan = planes.find(p => p.id === id);
-  Object.assign(plan, datos);
-  return plan;
-}
-
-async function eliminarPlan(id) {
-  planes = planes.filter(p => p.id !== id);
-}
-
-// ---------- Pagos ----------
-async function registrarPago(datos) {
-  const plan = planes.find(p => p.id === datos.planId);
-  const fin = new Date();
-  fin.setDate(fin.getDate() + plan.duracionDias);
-  const pago = {
-    id: Date.now(),
-    socioId: datos.socioId,
-    fecha: hoy(),
-    monto: datos.monto,
-    metodo: datos.metodo,
-    membresia: {
-      fechaInicio: hoy(),
-      fechaFin: fin.toISOString().slice(0, 10),
-      estado: "ACTIVA"
-    }
-  };
-  pagos.push(pago);
-  return pago;
-}
-
-async function getPagos(socioId) {
-  return pagos.filter(p => p.socioId === socioId);
-}
+// ---------- Pagos y membresías ----------
+async function registrarPago(datos)    { return pedir("POST", "/pagos", datos); }
+async function getPagos(socioId)       { return pedir("GET", "/pagos?socioId=" + socioId); }
+async function getMembresias(socioId)  { return pedir("GET", "/membresias?socioId=" + socioId); }
