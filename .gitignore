@@ -43,3 +43,6 @@ Thumbs.db
 
 # Configuración local (contraseñas)
 application-local.properties
+
+# Datos de conexión a la base en la nube (contraseña)
+conexion.properties

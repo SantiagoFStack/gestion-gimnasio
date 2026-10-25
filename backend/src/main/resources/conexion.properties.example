@@ -1,0 +1,8 @@
+# Conexión a la base de datos en la nube (Aiven).
+# Copia este archivo como conexion.properties en esta misma carpeta y rellena la clave.
+# conexion.properties NO se sube a GitHub. Si no existe, se usa el MySQL local de XAMPP.
+
+baseDatos=gimnasio
+url=jdbc:mysql://gimnasio-db-gestion-gimnasio.l.aivencloud.com:23484/gimnasio?sslMode=REQUIRED&serverTimezone=UTC&characterEncoding=UTF-8
+usuario=avnadmin
+clave=PON_AQUI_LA_CLAVE
