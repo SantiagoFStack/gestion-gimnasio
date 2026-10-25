@@ -7,17 +7,42 @@
 // cambia esta línea por: const URL_API = "http://localhost:8080/api";
 const URL_API = "https://gimnasio-api-imsn.onrender.com/api";
 
+// ---------- Sesión ----------
+// Al entrar, la API da un token (una "pulsera"). Se guarda mientras la pestaña esté
+// abierta y se envía en cada petición; sin él la API responde 401.
+function getToken() {
+  return sessionStorage.getItem("token");
+}
+
+// Volver a la pantalla de login (index.html) es cerrar sesión
+const enLogin = location.pathname.endsWith("/") || location.pathname.endsWith("index.html");
+if (enLogin) {
+  sessionStorage.removeItem("token");
+}
+
 // Hace la petición y devuelve el JSON, o lanza un error con el mensaje del back
 async function pedir(metodo, ruta, datos) {
+  const cabeceras = { "Content-Type": "application/json" };
+  if (getToken()) {
+    cabeceras["Authorization"] = "Bearer " + getToken();
+  }
+
   let respuesta;
   try {
     respuesta = await fetch(URL_API + ruta, {
       method: metodo,
-      headers: { "Content-Type": "application/json" },
+      headers: cabeceras,
       body: datos ? JSON.stringify(datos) : undefined
     });
   } catch (e) {
     throw new Error("No se pudo conectar con el servidor. Si lleva un rato sin usarse, espera un minuto y recarga.");
+  }
+
+  // Sin sesión (o caducada): de vuelta al login
+  if (respuesta.status === 401 && !enLogin) {
+    sessionStorage.removeItem("token");
+    location.href = "index.html";
+    throw new Error("Tienes que iniciar sesión");
   }
 
   if (!respuesta.ok) {
@@ -30,7 +55,11 @@ async function pedir(metodo, ruta, datos) {
 }
 
 // ---------- Login y dashboard ----------
-async function login(usuario, password) { return pedir("POST", "/login", { usuario, password }); }
+async function login(usuario, password) {
+  const usuarioLogueado = await pedir("POST", "/login", { usuario, password });
+  sessionStorage.setItem("token", usuarioLogueado.token);
+  return usuarioLogueado;
+}
 async function getDashboard()          { return pedir("GET", "/dashboard"); }
 
 // ---------- Socios ----------
