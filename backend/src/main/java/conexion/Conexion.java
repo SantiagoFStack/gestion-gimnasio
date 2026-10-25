@@ -15,10 +15,19 @@ public class Conexion {
             + "&characterEncoding=UTF-8";
     private static String USUARIO = "root";
     private static String CLAVE = "";
+    private static boolean EN_LA_NUBE = false;
 
     // Si existe src/main/resources/conexion.properties, se usa la base en la nube (Aiven).
     // Ese archivo tiene la contraseña y NO se sube a GitHub (ver conexion.properties.example).
     static {
+        // Registra el driver de MySQL a mano: la API atiende cada petición en otro hilo
+        // y, según cómo se arranque, Java no siempre lo encuentra solo
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Falta mysql-connector-j en el pom.xml");
+        }
+
         try (InputStream in = Conexion.class.getResourceAsStream("/conexion.properties")) {
             if (in != null) {
                 Properties p = new Properties();
@@ -27,6 +36,7 @@ public class Conexion {
                 URL = p.getProperty("url");
                 USUARIO = p.getProperty("usuario");
                 CLAVE = p.getProperty("clave");
+                EN_LA_NUBE = true;
             }
         } catch (IOException e) {
             System.out.println("No se pudo leer conexion.properties, se usa la base local");
@@ -39,5 +49,9 @@ public class Conexion {
 
     public static String getBaseDatos() {
         return BASE_DATOS;
+    }
+
+    public static String getDondeEsta() {
+        return EN_LA_NUBE ? "en la nube, Aiven" : "local, XAMPP";
     }
 }
