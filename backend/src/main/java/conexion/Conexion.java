@@ -41,6 +41,15 @@ public class Conexion {
         } catch (IOException e) {
             System.out.println("No se pudo leer conexion.properties, se usa la base local");
         }
+
+        // En el servidor de internet (Render) no hay archivo: los datos van en
+        // variables de entorno, que se configuran en su panel y no están en GitHub
+        if (System.getenv("DB_URL") != null) {
+            URL = System.getenv("DB_URL");
+            USUARIO = System.getenv("DB_USUARIO");
+            CLAVE = System.getenv("DB_CLAVE");
+            EN_LA_NUBE = true;
+        }
     }
 
     public static Connection conectar() throws SQLException {
