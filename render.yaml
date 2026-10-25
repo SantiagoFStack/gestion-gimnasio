@@ -9,8 +9,10 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free
     branch: main
-    healthCheckPath: /api/planes
+    healthCheckPath: /api/salud
     envVars:
+      - key: TOKEN_SECRETO   # clave para firmar los tokens de sesión: Render la inventa sola
+        generateValue: true
       - key: DB_URL
         sync: false
       - key: DB_USUARIO

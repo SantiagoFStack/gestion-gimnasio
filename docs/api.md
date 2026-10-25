@@ -2,10 +2,22 @@
 
 Acuerdo entre frontend y backend. Si algo cambia, se cambia primero aquí y se avisa al otro.
 
-- Base: `http://localhost:8080/api`
+- Base en internet: `https://gimnasio-api-imsn.onrender.com/api` · en el PC: `http://localhost:8080/api`
 - Datos en JSON, nombres de campo en camelCase.
 - Fechas como texto `"AAAA-MM-DD"`, por ejemplo `"2026-10-22"`.
 - Errores: código `400`, `401` o `404` con `{"error": "mensaje"}`.
+
+## Sesión (token)
+
+`POST /login` devuelve un `token`. **Todas las demás rutas** (menos `/salud`) exigen enviarlo en la cabecera:
+
+```
+Authorization: Bearer <token>
+```
+
+Sin token, o con uno caducado (duran 12 horas), responden `401` con `{"error": "Tienes que iniciar sesión"}`. El `frontend/js/api.js` ya lo hace solo: guarda el token al entrar y vuelve al login si recibe un `401`.
+
+`GET /salud` es pública: responde `{"estado": "ok"}` si la API y la base de datos funcionan.
 
 ## Endpoints
 
@@ -77,7 +89,11 @@ Lo que devuelve el back:
 { "usuario": "admin", "password": "1234" }
 ```
 
-Responde `200` si es correcto y `401` si no.
+Responde `200` si es correcto y `401` si no:
+
+```json
+{ "id": 1, "usuario": "admin", "rol": "ADMIN", "token": "MTphZG1pbjpBRE1JTjox...Xk9" }
+```
 
 ### Dashboard
 

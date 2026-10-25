@@ -14,6 +14,7 @@ public class Servidor {
         int puerto = Integer.parseInt(System.getenv().getOrDefault("PORT", "8080"));
 
         HttpServer servidor = HttpServer.create(new InetSocketAddress(puerto), 0);
+        servidor.createContext("/api/salud", new SaludRuta());
         servidor.createContext("/api/login", new LoginRuta());
         servidor.createContext("/api/dashboard", new DashboardRuta());
         servidor.createContext("/api/socios", new SociosRuta());

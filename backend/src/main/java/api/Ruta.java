@@ -29,6 +29,12 @@ public abstract class Ruta implements HttpHandler {
     // Cada ruta escribe aquí lo que hace con GET, POST, PUT o DELETE
     protected abstract void atender(HttpExchange ex) throws Exception;
 
+    // Por defecto todas las rutas exigen haber iniciado sesión (token).
+    // Las públicas (login y salud) lo cambian a false.
+    protected boolean requiereLogin() {
+        return true;
+    }
+
     @Override
     public void handle(HttpExchange ex) throws IOException {
         // CORS: deja que el navegador llame a la API desde otra dirección
@@ -36,12 +42,16 @@ public abstract class Ruta implements HttpHandler {
         Headers h = ex.getResponseHeaders();
         h.add("Access-Control-Allow-Origin", "*");
         h.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        h.add("Access-Control-Allow-Headers", "Content-Type");
+        h.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
         h.add("Access-Control-Allow-Private-Network", "true");
 
         try {
             if (ex.getRequestMethod().equals("OPTIONS")) {   // pregunta previa del navegador
                 ex.sendResponseHeaders(204, -1);
+                return;
+            }
+            if (requiereLogin() && !Token.esValido(tokenDe(ex))) {
+                error(ex, 401, "Tienes que iniciar sesión");
                 return;
             }
             atender(ex);
@@ -85,6 +95,15 @@ public abstract class Ruta implements HttpHandler {
     }
 
     // ---------- Leer la petición ----------
+
+    // El token llega en la cabecera:  Authorization: Bearer <token>
+    private String tokenDe(HttpExchange ex) {
+        String cabecera = ex.getRequestHeaders().getFirst("Authorization");
+        if (cabecera == null || !cabecera.startsWith("Bearer ")) {
+            return null;
+        }
+        return cabecera.substring("Bearer ".length()).trim();
+    }
 
     // El id al final de la dirección: /api/socios/3 → 3, /api/socios → null
     protected Integer idDeRuta(HttpExchange ex) {
