@@ -56,3 +56,27 @@ async function mostrarHistorial() {
 
 document.getElementById("plan").addEventListener("change", ponerMonto);
 document.getElementById("socio").addEventListener("change", () => {
+  document.getElementById("resultado").innerHTML = "";
+  mostrarHistorial();
+});
+
+document.getElementById("form-pago").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const datos = {
+    socioId: Number(document.getElementById("socio").value),
+    planId: Number(document.getElementById("plan").value),
+    monto: Number(document.getElementById("monto").value),
+    metodo: document.getElementById("metodo").value
+  };
+
+  try {
+    const pago = await registrarPago(datos);
+    mostrarMensaje(`Pago registrado. Al día hasta el <b>${pago.membresia.fechaFin}</b>.`, "success");
+    mostrarHistorial();
+  } catch (err) {
+    mostrarMensaje(err.message, "danger");
+  }
+});
+
+llenarListas();

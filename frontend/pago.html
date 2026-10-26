@@ -33,4 +33,28 @@
         <input id="monto" type="number" min="1" class="form-control mb-3" required>
 
         <label class="form-label">Método de pago</label>
-        <select id="metodo"
+        <select id="metodo" class="form-select mb-3">
+          <option value="EFECTIVO">Efectivo</option>
+          <option value="TARJETA">Tarjeta</option>
+          <option value="TRANSFERENCIA">Transferencia</option>
+        </select>
+
+        <button class="btn btn-success">Registrar pago</button>
+        <div id="resultado" class="mt-3"></div>
+      </form>
+
+      <h5 class="mt-4">Historial de pagos</h5>
+      <table class="table bg-white" style="max-width: 720px">
+        <thead>
+          <tr><th>Fecha</th><th>Monto</th><th>Método</th><th>Vence</th></tr>
+        </thead>
+        <tbody id="historial"></tbody>
+      </table>
+    </main>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/pago.js"></script>
+</body>
+</html>
