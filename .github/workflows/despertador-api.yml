@@ -1,0 +1,27 @@
+# Despertador: llama a la API cada 10 minutos para que Render no la duerma
+# (en el plan gratis se apaga tras 15 min sin visitas y tarda ~50 s en volver).
+# /api/salud es pública y consulta la base de datos, así que también mantiene despierta la base de Aiven.
+name: Mantener despierta la API
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # cada 10 minutos (hora UTC)
+  workflow_dispatch:         # permite lanzarlo a mano desde la pestaña Actions
+
+jobs:
+  despertar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Llamar a la API
+        run: |
+          for intento in 1 2 3; do
+            if curl -fsS --max-time 90 -o /dev/null https://gimnasio-api-imsn.onrender.com/api/salud; then
+              echo "API despierta"
+              exit 0
+            fi
+            echo "Intento $intento sin respuesta, reintento en 20 s"
+            sleep 20
+          done
+          echo "La API no respondió en 3 intentos"
+          exit 1

@@ -1,0 +1,21 @@
+# Configuración para publicar la API en Render (render.com), plan gratis.
+# Render lee este archivo al crear el servicio con "New → Blueprint".
+# Los datos de la base (DB_*) se escriben en el panel de Render, nunca aquí.
+services:
+  - type: web
+    name: gimnasio-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    branch: main
+    healthCheckPath: /api/salud
+    envVars:
+      - key: TOKEN_SECRETO   # clave para firmar los tokens de sesión: Render la inventa sola
+        generateValue: true
+      - key: DB_URL
+        sync: false
+      - key: DB_USUARIO
+        sync: false
+      - key: DB_CLAVE
+        sync: false
