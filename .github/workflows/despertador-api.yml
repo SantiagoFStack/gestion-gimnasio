@@ -1,6 +1,8 @@
 # Despertador: llama a la API cada 10 minutos para que Render no la duerma
 # (en el plan gratis se apaga tras 15 min sin visitas y tarda ~50 s en volver).
 # /api/salud es pública y consulta la base de datos, así que también mantiene despierta la base de Aiven.
+# Además, el plan gratis de Aiven apaga la base por inactividad y no se enciende sola:
+# si la encuentra apagada, la enciende con la API de Aiven (secreto AIVEN_TOKEN).
 name: Mantener despierta la API
 
 on:
@@ -13,6 +15,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Encender la base de Aiven si está apagada
+        env:
+          AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
+          SERVICIO: https://api.aiven.io/v1/project/gestion-gimnasio/service/gimnasio-db
+        run: |
+          if [ -z "$AIVEN_TOKEN" ]; then
+            echo "Falta el secreto AIVEN_TOKEN: no se puede revisar Aiven"
+            exit 0
+          fi
+          estado=$(curl -fsS -H "Authorization: aivenv1 $AIVEN_TOKEN" "$SERVICIO" | jq -r '.service.state')
+          echo "Estado de la base en Aiven: $estado"
+          if [ "$estado" = "POWEROFF" ]; then
+            curl -fsS -X PUT -H "Authorization: aivenv1 $AIVEN_TOKEN" -H "Content-Type: application/json" \
+                 -d '{"powered": true}' "$SERVICIO" -o /dev/null
+            echo "Estaba apagada: encendiéndola (tarda unos 5 minutos)"
+          fi
+
       - name: Llamar a la API
         run: |
           for intento in 1 2 3; do
